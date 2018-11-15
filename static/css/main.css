@@ -1,0 +1,90 @@
+body {
+    background-color: #222;
+    margin: 0;
+    color:#fff;
+}
+a { color:#35BF5C; }
+a:hover { color:#65dF8C; }
+
+
+table.pkgs, table.pkg { 
+    border:1px solid #000;
+    width: 90%; margin:auto;
+    border-spacing: 0;
+}
+
+table.pkgs td {
+    border-bottom: 1px solid #444;
+}
+
+table.pkgs tr:nth-child(odd) {
+    background-color: #333;
+}
+
+table.pkgs tr:hover {
+    background-color: #000;
+}
+
+table.pkgs td {
+    padding: 4px 5px;
+}
+
+table.pkgs td.size { white-space: nowrap; text-align: right; }
+
+table.pkgs td.iconlist { padding: 1px; }
+table.pkgs td.iconlist img { max-height: 24px; }
+
+
+
+ul.repos { 
+    margin: auto; padding: 0; 
+    list-style-type:none; clear: right; width:70%; 
+}
+ul.repos li { margin-left:2px; float: left; }
+ul.repos li a {
+    display:block;
+    float:left;   
+    width:100px;
+    background-color:#35BF5C;
+    color:#fff;
+    text-decoration:none;
+    text-align:center;
+    padding:5px;
+    border:1px solid;
+    border-color:#DCDCDC;
+    }
+ul.repos li a:hover {
+    color:#000;
+    background-color:#65dF8C;
+}
+
+header { 
+    background-color: #767676; clear:both ;
+    height: 64px;
+    border-bottom:3px solid #35BF5C;
+}
+header form {
+    margin:5px;
+}
+
+#logo {
+    width: 64px;
+    height: 64px;
+    background: url(/static/images/manjaro.png) center no-repeat;
+    background-size: 100% auto;
+    float: left;
+}
+#logo i { display: none; }
+
+
+
+a.dep { 
+    padding: 1px 3px; background-color: #eee; 
+    border-radius: 4px;
+    color:#000;
+    text-decoration: none;
+}
+a.gtk { background-color: #ccffcc; }
+a.gnome { background-color: #ffcc99; }
+a.kde { background-color: #ccccff; }
+a.qt { background-color: #ddddff; }

@@ -1,0 +1,19 @@
+{% extends "index.html" %}
+
+{% block alpmpackages %}
+<h4>find packages "{{ p }}"</h4>
+<table border="0" class="pkgs">
+    {% for pkg in pkgs %}
+    <tr>
+        <td>{% if pkg.props.installed_version %}*{% endif %}</td>
+        <td class="iconlist">{% if pkg.props.icon %}
+                <img src="/api/icon/?i={{ pkg.props.icon }}">
+            {% endif %}</td>
+        <td><a href="{{ url_for('get_pkg', pkg_name=pkg.props.name) }}">{{ pkg.props.name }}</a><br />{{ pkg.props.desc }}</td>
+        <td>{{ pkg.props.version }}</td>
+        <td>{{ pkg.props.repo }}</td>
+        <td class="size">{{ pkg.props.size|filesizeformat }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

@@ -1,0 +1,16 @@
+
+{% macro list_depends(list) %}
+    {% for item in list %}
+        {% set cl = "" %}
+        {% if "gtk" in item %}
+            {% set cl = "gtk" %}
+        {% elif "gnome" in item %}
+            {% set cl = "gnome" %}
+        {% elif "plasma" in item %}
+            {% set cl = "kde" %}
+        {% elif "qt5" in item %}
+            {% set cl = "qt" %}
+        {% endif %}
+        <a href="{{ url_for('get_pkg', pkg_name=item|format_url_pkg) }}" class="dep {{ cl }}">{{ item }}</a> &nbsp;
+    {% endfor %}
+{% endmacro %}

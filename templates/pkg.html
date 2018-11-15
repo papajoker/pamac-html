@@ -1,0 +1,91 @@
+{% extends "index.html" %}
+{% from "macros.html" import list_depends with context %}
+
+{% block alpmpackages %}
+<h4>package "{{ pkg.props.name }} {{ pkg.version }}"</h4>
+{% if pkg.icon %}
+<img src="/api/icon/?i={{ pkg.icon }}" class="icon"/>
+{% else %}
+    <img src="/api/icon/?pkg={{ pkg.props.name }}" class="icon"/>
+{% endif %}
+
+<table border="0" class="pkg">
+
+    <tr><td></td>
+            <td><br /><h4>{{ pkg.props.name }}</h4></td>
+    </tr>
+    <tr>
+        <td>version</td>
+        <td><strong>{{ pkg.props.version }}</strong>
+            {% if pkg.props.installed_version %}
+                {% if not pkg.props.requiredby %}
+                <form action="/commit/{{ pkg.props.name }}" method="POST"><input type="submit" name="action" value="remove"/>
+                    <input name="action" value="install" type="hidden"/>
+                    <input name="pkg" value="{{ pkg.props.name }}" type="hidden"/>
+                </form>
+                {% endif %}
+            {% else %}
+            <form action="/commit/{{ pkg.props.name }}" method="POST"><input type="submit" name= "action" value="install"/>
+                <input name="action" value="install" type="hidden"/>
+                <input name="pkg" value="{{ pkg.props.name }}" type="hidden"/>
+            </form>
+            {% endif %}
+        </td>
+    </tr>
+    <tr>
+        <td>desc</td>
+        <td>{{ pkg.props.desc }}
+            {% if pkg.props.long_desc %}
+                <br />{{ pkg.props.long_desc }}
+            {% endif %}
+        </td>
+        </tr>    
+    {% if pkg.props.icon %}
+        <tr>
+            <td><img src="/api/icon/?i={{ pkg.props.icon }}" class="icon"/></td>
+            <td>
+                {% if pkg.props.screenshot %}
+                <a href="{{ pkg.props.screenshot }}" target="_blank"><img src="{{ pkg.props.screenshot }}" class="icon" height="64" border="0"/></a>
+                {% endif %}
+            </td>
+        </tr>
+    {% endif %}
+    <tr><td>size</td><td>{{ pkg.props.size|filesizeformat }}</td></tr>
+    <tr><td>repo</td><td><a href="{{ url_for('get_repo', repo_id=pkg.props.repo) }}">{{ pkg.props.repo }}</a></td></tr>
+    {% if pkg.props.url %}
+    <tr><td>url</td><td><a href="{{ pkg.props.url }}" target="_blank">{{ pkg.props.url }}</a></td></tr>
+    {% endif %}
+    <tr>
+        <td>depends</td>
+        <td>{{ list_depends(pkg.props.depends) }}</td>
+    </tr>
+    {% if pkg.props.requiredby %}
+    <tr>
+        <td>requiredby</td>
+        <td>{{ list_depends(pkg.props.requiredby) }}</td>        
+    </tr>
+    {% endif %}
+</table>
+<hr />
+<table border="1" class="pkg">
+        <!-- test -->
+        {% for prop in pkg %}
+        {% if prop[1] %}
+        <tr>
+            <td>{{ prop[0] }}</td>
+            <td>{{ prop[1] }}</td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+        <!-- end test-->
+</table>
+
+<pre>
+{% for prop in pkg %}
+    {{ prop }}
+{% endfor %}
+</pre>
+
+
+
+{% endblock %}

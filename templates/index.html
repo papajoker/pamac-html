@@ -1,0 +1,32 @@
+<html lang="fr">
+ <head>
+    <title>pamac-html {{ title }}</title>
+    <meta content="">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link href="{{ url_for('static', filename='css/main.css') }}" rel="stylesheet" type="text/css" />
+    <style></style>
+ </head>
+ 
+ <body>
+   <header>
+   <a href="{{ url_for('get_index', title=title) }}" id="logo"><i>INDEX</i></a>  
+    <ul class="repos">
+        {% for rep in repos %}
+        <li><a href="{{ url_for('get_repo', repo_id=rep) }}">{{ rep }}</a></li>
+        {% endfor %}
+        <li><a href="{{ url_for('get_repo', repo_id='orphans') }}">Orphans</a></li>
+        <li>
+            <form action="{{ url_for('get_find') }}" method="POST">
+                <input name="p" placeholder="package nane" size="40" autofocus required />
+                <input type="submit"/>
+              </form>
+        </li>
+    </ul>
+  </header>
+
+  <main>
+    {% block alpmpackages %}{% endblock %}  
+  </main>
+
+ </body>
+</html>

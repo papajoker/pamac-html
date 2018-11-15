@@ -1,0 +1,142 @@
+#!/usr/bin/env python
+
+import os
+
+#import stripe
+from flask import Flask, jsonify, request, render_template, send_file, abort, Response
+from lib.database import Database
+from lib.commit import Commit
+from lib.packages import PackageDetail
+#from flask_cors import CORS
+
+
+# configuration
+DEBUG = True
+
+# instantiate the app
+app = Flask(__name__)
+app.config.from_object(__name__)
+
+@app.route('/')
+def get_index():
+    """page index"""
+    return render_template("index.html", 
+            title="pamac",
+            repos=Database().db.get_repos_names())
+
+@app.route('/api/repos')
+def api_get_repos():
+    """return repos list"""
+    repos = Database().db.get_repos_names()
+    return jsonify(repos)
+
+@app.route('/api/icon/', methods=['GET'])
+def api_get_icon():
+    """return img from disk"""
+    pkg_name = request.args.get('pkg')
+    if pkg_name:
+        pkg_files = Database().db.get_pkg_files(pkg_name)
+        for src in pkg_files:
+            if src.startswith("/usr/share/icons/hicolor/32x32/apps/"):
+                return send_file(src, as_attachment=False)
+        return send_file("static/images/null.gif")
+    else:
+        src = request.args.get('i')
+        if not os.path.isfile(src):
+            #abort(404)
+            return send_file("static/images/null.gif")
+    return send_file(src, as_attachment=False)
+
+
+@app.route('/repo/<repo_id>')
+def get_repo(repo_id):
+    """page list one repo"""
+    if repo_id == "orphans":
+        pkgs = Database().db.get_orphans()
+    else:
+        pkgs = Database().db.get_repo_pkgs(repo_id)
+    return render_template("repo.html", 
+                        title=" - "+repo_id,
+                        repos=Database().db.get_repos_names(),
+                        pkgs=pkgs,
+                        repo=repo_id)
+
+@app.route('/find', methods=['POST'])
+def get_find():
+    """find some packages"""
+    post_data = request.form['p']
+    pkgs = Database().db.search_pkgs(post_data)
+    return render_template("find.html", 
+                        title=" - find",
+                        p=post_data,
+                        repos=Database().db.get_repos_names(),
+                        pkgs=pkgs)
+
+@app.route('/pkg/<pkg_name>')
+def get_pkg(pkg_name):
+    """page list one repo"""
+    pkg = Database().db.get_pkg_details(pkg_name, "", False)
+    pkg = PackageDetail.surClass(pkg)
+    print('dir: ', dir(pkg))
+    
+    #print('name:', pkg.nane)
+    #print('props.name:', pkg.props.nane)
+    return render_template("pkg.html", 
+                        title=" - "+pkg_name,
+                        repos=Database().db.get_repos_names(),
+                        pkg=pkg)
+
+
+@app.route('/commit/<pkg_name>', methods=['POST'])
+def set_commit(pkg_name):
+    to_install = []
+    to_remove = []
+    to_load = []
+    response = ""
+
+    def post_message(msg: str, status):
+        switcher = {
+                1: "-> ",
+                2: ":: ",
+                3: "   ",
+                4: "!!! ",
+                5: "! ",
+                6: "",
+            }   
+        print(f"{switcher.get(status, '')}{msg}")
+        response = f"\n{switcher.get(status, '')}{msg}"
+
+    if request.method == 'POST':
+        #pkg_name = request.form['pkg']
+        action = request.form['action']
+        print("action:", action, pkg_name)
+        if action == "install":
+            to_install = [ pkg_name ]
+        else:
+            to_remove = [ pkg_name ]
+        try:
+            with Commit(Database().db, post_message) as mycommit:
+                mycommit.run(to_install=to_install, to_remove=to_remove, to_load=to_load  )
+        except Exception as ex:
+            print("transaction.get_lock(): False", "\nwait "+ex.args[0])
+            print("pamac", "ERROR: "+ex.args[0])
+
+    return get_pkg(pkg_name)
+    #return redirect("/pkg/"+pkg_name)
+    #return Response(response, mimetype='text/plain')
+
+
+
+@app.template_filter('format_url_pkg')
+def format_list(pkg):
+    url = pkg.split(">")
+    url = url[0].split("=")
+    url = url[0].split("<")
+    return url[0]
+
+
+
+
+print("PATH =====>", app.instance_path)
+if __name__ == '__main__':
+    app.run()
